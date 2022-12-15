@@ -1,4 +1,4 @@
-const url = 'http://localhost:9091';
+const url = 'http://localhost:8080';
 let stompClient;
 let selectedUser;
 let newMessages = new Map();
@@ -37,6 +37,8 @@ function registration() {
             alert("Login is already busy!")
         }
     })
+
+    fetchAll();
 }
 
 function selectUser(userName) {
