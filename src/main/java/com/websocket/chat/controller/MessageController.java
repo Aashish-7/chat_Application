@@ -1,5 +1,6 @@
 package com.websocket.chat.controller;
 
+import com.websocket.chat.dao.UserStorageRepository;
 import com.websocket.chat.model.MessageModel;
 import com.websocket.chat.storage.UserStorage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +15,20 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class MessageController {
 
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    UserStorageRepository userStorageRepository;
 
     @Autowired
-    public MessageController(SimpMessagingTemplate simpMessagingTemplate) {
+    public MessageController(SimpMessagingTemplate simpMessagingTemplate, UserStorageRepository userStorageRepository) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.userStorageRepository = userStorageRepository;
     }
 
     @MessageMapping("/chat/{to}")
     public void sendMessage(@DestinationVariable String to, MessageModel message) {
         System.out.println("handling send message: " + message + " to: " + to);
-        boolean isExists = UserStorage.getInstance().getUsers().contains(to);
+        boolean isExists = userStorageRepository.existsByUserName(to);
         if (isExists) {
             simpMessagingTemplate.convertAndSend("/topic/messages/" + to, message);
         }
