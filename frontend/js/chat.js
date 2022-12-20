@@ -32,13 +32,13 @@ function registration() {
     let userName = document.getElementById("userName").value;
     $.get(url + "/registration/" + userName, function (response) {
         connectToChat(userName);
+        fetchAll();
     }).fail(function (error) {
         if (error.status === 400) {
             alert("Login is already busy!")
         }
     })
-
-    fetchAll();
+    // fetchAll();
 }
 
 function selectUser(userName) {
@@ -72,3 +72,13 @@ function fetchAll() {
         $('#usersList').html(usersTemplateHTML);
     });
 }
+
+// function createGroup() {
+//     $.get(url + "/createGroup", function (response) {
+//         let users = response;
+//         for (let i = 0; i<users.length; i++){
+//             <div id= "createGroup_" ' + users[i] ' </div>
+//         }
+// });
+// }
+

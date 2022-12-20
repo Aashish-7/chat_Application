@@ -1,7 +1,8 @@
 package com.websocket.chat.controller;
 
 import com.websocket.chat.dao.UserStorageRepository;
-import com.websocket.chat.storage.UserStorage;
+import com.websocket.chat.service.GroupsService;
+import com.websocket.chat.storage.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,19 +19,24 @@ public class UsersController {
 
     UserStorageRepository userStorageRepository;
 
+    GroupsService groupsService;
     @Autowired
-    public UsersController(UserStorageRepository userStorageRepository) {
+    public UsersController(UserStorageRepository userStorageRepository, GroupsService groupsService) {
         this.userStorageRepository = userStorageRepository;
+        this.groupsService = groupsService;
     }
 
     @GetMapping("/registration/{userName}")
-    public ResponseEntity<Void> register(@PathVariable String userName) {
+    public ResponseEntity<Void> register(@PathVariable String userName) throws Exception {
         System.out.println("handling register user request: " + userName);
-        fetchAll();
         try {
-            UserStorage userStorage = new UserStorage();
-            userStorage.setUserName(userName);
-            userStorageRepository.save(userStorage);
+            fetchAll();
+            User user = new User();
+            if (userStorageRepository.existsByUserName(userName)){
+                throw new Exception("user already exits");
+            }
+            user.setUserName(userName);
+            userStorageRepository.save(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -39,7 +45,13 @@ public class UsersController {
 
     @GetMapping("/fetchAllUsers")
     public Set<String> fetchAll() {
-        return userStorageRepository.findAll().stream().map(UserStorage::getUserName).collect(Collectors.toSet());
+        return userStorageRepository.findAll().stream().map(User::getUserName).collect(Collectors.toSet());
+    }
+
+
+    @GetMapping("/createGroup")
+    public String createGroup() {
+        return groupsService.createGroup();
     }
 
 }
